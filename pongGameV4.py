@@ -13,8 +13,8 @@ FPS = 60
 PADDLE_WIDTH, PADDLE_HEIGHT = 60,20
 BALL_RADIUS = 10
 
-add_x_vel = 0
-add_y_vel = 0
+x_add = 1
+y_add = 1
 
 pygame.display.set_caption("pongGame")
 
@@ -28,6 +28,8 @@ class Paddle():
     def updateY(self, y_diff):
         self.rect.y += y_diff
 
+    def getRect(self):
+        return self.rect
 
 class Ball():
     def __init__(self, dimension):
@@ -40,29 +42,37 @@ class Ball():
 
     def invertX(self):
         if self.rect.x < 0:
-            self.x_vel = 2 + add_x_vel
+            self.x_vel = 0 + abs(self.x_vel)
 
         if self.rect.x > WIDTH*2:
-            self.x_vel = -2 - add_y_vel
+            self.x_vel = 0 - abs(self.x_vel)
 
     def updateY(self, y_diff):
         self.rect.y += y_diff
 
     def invertY(self):
         if self.rect.y < 0:
-            self.y_vel = 2 + add_y_vel
+           self.y_vel = abs(self.y_vel)
 
-        if self.rect.y > HEIGHT*2:
-            self.y_vel = -2 - add_y_vel
+        if self.rect.y > HEIGHT * 2:
+           self.y_vel = 0 - abs(self.y_vel)
+        
+    def invertYPaddle(self):
+        self.y_vel = 0 - abs(self.y_vel)
+
+    def getRect(self):
+        return self.rect
 
         
 #define a draw_window function that displays all elements on the screen
 paddle = Paddle((PADDLE_WIDTH,PADDLE_HEIGHT))
 ball = Ball((BALL_RADIUS, BALL_RADIUS))
+
 def draw_window():
     pygame.draw.rect(WIN, BLACK, pygame.Rect(0,0,WIDTH,HEIGHT))
-    pygame.draw.rect(WIN, WHITE, paddle.rect)
+    pygame.draw.rect(WIN, WHITE, paddle.getRect())
     pygame.draw.circle(WIN, WHITE, (ball.rect.x/2, ball.rect.y/2), BALL_RADIUS)
+
     
    
 game_running = True
@@ -86,6 +96,10 @@ while game_running:
     
     ball.invertX()
     ball.invertY()
+
+    if (ball.rect.colliderect(paddle.rect)):
+        ball.invertYPaddle()
+    
     ball.updateX(ball.x_vel)
     ball.updateY(ball.y_vel)
     
