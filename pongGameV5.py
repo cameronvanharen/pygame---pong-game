@@ -1,5 +1,8 @@
 import pygame
 import os
+pygame.init()
+
+
 
 
 WIDTH,HEIGHT = 500,300
@@ -9,6 +12,14 @@ BLACK = (0,0,0)
 RED = (255,0,0)
 YELLOW = (255,255,0)
 FPS = 60
+
+
+
+score = 0
+gameOver = False
+
+
+font = pygame.font.Font('freesansbold.ttf', 16)
 
 PADDLE_WIDTH, PADDLE_HEIGHT = 60,20
 BALL_RADIUS = 10
@@ -56,9 +67,13 @@ class Ball():
 
         if self.rect.y > HEIGHT:
            self.y_vel = 0 - abs(self.y_vel)
+           global gameOver
+           gameOver = True
         
     def invertYPaddle(self):
+        global score
         self.y_vel = 0 - abs(self.y_vel)
+        score += 1
 
     def getRect(self):
         return self.rect
@@ -68,13 +83,23 @@ class Ball():
 paddle = Paddle((PADDLE_WIDTH,PADDLE_HEIGHT))
 ball = Ball((BALL_RADIUS, BALL_RADIUS))
 
+
 def draw_window():
     pygame.draw.rect(WIN, BLACK, pygame.Rect(0,0,WIDTH,HEIGHT))
     pygame.draw.rect(WIN, WHITE, pygame.Rect(paddle.rect.x, paddle.rect.y, PADDLE_WIDTH, PADDLE_HEIGHT))
    # print(paddle.getRect())
-    print(ball.rect.x)
+    #
    # print(paddle.rect.x)
     pygame.draw.circle(WIN, WHITE, (ball.rect.x, ball.rect.y), BALL_RADIUS)
+    text = font.render(f'Score: {score}', True, WHITE, None)
+    gameOverText = font.render(f'Your final score: {score}', True, WHITE, None)
+    textRect = text.get_rect()
+    gameOverTextRect = gameOverText.get_rect()
+    gameOverTextRect.center = (WIDTH/2, HEIGHT/2)
+    WIN.blit(text, textRect)
+    if gameOver == True:
+        pygame.draw.rect(WIN, BLACK, pygame.Rect(0,0,WIDTH,HEIGHT))
+        WIN.blit(gameOverText, gameOverTextRect)
 
     
    
@@ -103,8 +128,11 @@ while game_running:
     if (ball.rect.colliderect(paddle.rect)):
         ball.invertYPaddle()
     
-    ball.updateX(ball.x_vel)
-    ball.updateY(ball.y_vel)
+    if gameOver == False:
+
+        ball.updateX(ball.x_vel)
+        ball.updateY(ball.y_vel)
+    
     
         
     draw_window()
